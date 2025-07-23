@@ -1,48 +1,51 @@
-import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+/* src/NarrativeScanner.jsx */
+import React, { useState } from 'react';
 
 export default function NarrativeScanner() {
-  const [narrative, setNarrative] = useState("");
+  const [text, setText] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const analyzeNarrative = async () => {
+  const analyzeText = async () => {
     setLoading(true);
     setResult(null);
-    const response = await fetch("https://proq-b745.onrender.com/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: narrative })
-    });
-    const data = await response.json();
-    setResult(data);
-    setLoading(false);
+    try {
+      const response = await fetch("https://proq-b745.onrender.com/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }),
+      });
+      const data = await response.json();
+      setResult(data);
+    } catch (error) {
+      setResult({ error: 'შეცდომა: ვერ მოხერხდა ანალიზის მიღება' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4 space-y-4">
-      <h1 className="text-2xl font-bold">ProQ – Propaganda Qualifier</h1>
-      <Textarea
-        value={narrative}
-        onChange={(e) => setNarrative(e.target.value)}
-        placeholder="ჩაწერე ტექსტი..."
-        className="min-h-[120px]"
+    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+      <h1>ProQ – ნარატივის ანალიზატორი</h1>
+      <textarea
+        rows="6"
+        cols="80"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="შეიყვანე ტექსტი..."
       />
-      <Button onClick={analyzeNarrative} disabled={loading}>
-        {loading ? "გაანალიზება..." : "გაანალიზე"}
-      </Button>
+      <br /><br />
+      <button onClick={analyzeText} disabled={loading}>
+        {loading ? 'იტვირთება...' : 'დაიწყე ანალიზი'}
+      </button>
+      <br /><br />
       {result && (
-        <Card>
-          <CardContent className="space-y-2 p-4">
-            <p><strong>I დონე:</strong> {result.level1}</p>
-            <p><strong>II დონე:</strong> {result.level2}</p>
-            <p><strong>III დონე:</strong> {result.level3}</p>
-            <p className="text-muted-foreground text-sm">{result.note}</p>
-          </CardContent>
-        </Card>
+        <div>
+          <h3>შედეგი:</h3>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+        </div>
       )}
     </div>
   );
