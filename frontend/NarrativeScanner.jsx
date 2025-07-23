@@ -12,7 +12,7 @@ export default function NarrativeScanner() {
   const analyzeNarrative = async () => {
     setLoading(true);
     setResult(null);
-    const response = await fetch("https://your-backend-url/analyze", {
+    const response = await fetch("https://proq-b745.onrender.com/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: narrative })
